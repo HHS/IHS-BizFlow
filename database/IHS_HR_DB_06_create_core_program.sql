@@ -45,174 +45,6 @@ END;
 
 
 --------------------------------------------------------
---  DDL for Procedure SP_UPDATE_FORM_DATA
---------------------------------------------------------
-
-/**
- * Stores the form data XML in the form detail table (FORM_DTL).
- *
- * @param IO_ID - ID number the row of the FORM_DTL table to be inserted or updated.  It will be also used as the return object.
- * @param I_FORM_TYPE - Form Type to indicate the source form name, which will be
- * 				used to distinguish the xml structure.
- * @param I_FIELD_DATA - CLOB representation of the form xml data.
- * @param I_USER - Indicates the user who
- * @param I_PROCID - Process ID for the process instance associated with the given form data.
- * @param I_ACTSEQ - Activity Sequence for the process instance associated with the given form data.
- * @param I_WITEMSEQ - Work Item Sequence for the process instance associated with the given form data.
- *
- * @return IO_ID - ID number of the row of the FORM_DTL table inserted or updated.
- */
-
-CREATE OR REPLACE PROCEDURE SP_UPDATE_FORM_DATA
-(
-	IO_ID               IN OUT  NUMBER
-	, I_FORM_TYPE       IN      VARCHAR2
-	, I_FIELD_DATA      IN      CLOB
-	, I_USER            IN      VARCHAR2
-	, I_PROCID          IN      NUMBER
-	, I_ACTSEQ          IN      NUMBER
-	, I_WITEMSEQ        IN      NUMBER
-)
-IS
-	V_ID NUMBER(20);
-	V_FORM_TYPE VARCHAR2(50);
-	V_USER VARCHAR2(50);
-	V_PROCID NUMBER(10);
-	V_ACTSEQ NUMBER(10);
-	V_WITEMSEQ NUMBER(10);
-	V_REC_CNT NUMBER(10);
-	V_MAX_ID NUMBER(20);
-	V_XMLDOC XMLTYPE;
-	V_REMAINING_SLA NUMBER;
-	V_DEADLINE_SEQ1 NUMBER;
-	V_DEADLINE_SEQ2 NUMBER;
-BEGIN
-	V_XMLDOC := XMLTYPE(I_FIELD_DATA);
-
-	IF IO_ID IS NOT NULL AND IO_ID > 0 THEN
-		V_ID := IO_ID;
-	ELSE
-
-		-- if existing record is found using procid, use that id
-		IF I_PROCID IS NOT NULL AND I_PROCID > 0 THEN
-			BEGIN
-				SELECT ID INTO V_ID FROM FORM_DTL WHERE PROCID = I_PROCID;
-			EXCEPTION
-				WHEN NO_DATA_FOUND THEN
-					V_ID := -1;
-			END;
-		END IF;
-
-		IO_ID := V_ID;
-	END IF;
-
-	IF I_PROCID IS NOT NULL AND I_PROCID > 0 THEN
-		V_PROCID := I_PROCID;
-	ELSE
-		V_PROCID := 0;
-	END IF;
-
-	IF I_ACTSEQ IS NOT NULL AND I_ACTSEQ > 0 THEN
-		V_ACTSEQ := I_ACTSEQ;
-	ELSE
-		V_ACTSEQ := 0;
-	END IF;
-
-	IF I_WITEMSEQ IS NOT NULL AND I_WITEMSEQ > 0 THEN
-		V_WITEMSEQ := I_WITEMSEQ;
-	ELSE
-		V_WITEMSEQ := 0;
-	END IF;
-
-	BEGIN
-		SELECT COUNT(*) INTO V_REC_CNT FROM FORM_DTL WHERE ID = V_ID;
-	EXCEPTION
-		WHEN NO_DATA_FOUND THEN
-			V_REC_CNT := -1;
-	END;
-
-	IF V_ACTSEQ = 8 THEN
-		SP_UPDATE_PV_FROM_FORMDATA_SC(V_PROCID, V_XMLDOC);
-	ELSE
-		SP_UPDATE_PV_FROM_FORMDATA(V_PROCID, V_XMLDOC);
-	END IF;
-
-	SP_UPDATE_REPORT_FROM_FORMDATA(V_PROCID, V_XMLDOC);
-
-	-- do not save pv_requestStatus to get latest from PV value
-	SELECT UPDATEXML(V_XMLDOC, '/formData/items/item[id="pv_requestStatus"]', '')
-      INTO V_XMLDOC
-      FROM DUAL;
-	  
-	V_FORM_TYPE := I_FORM_TYPE;
-	V_USER := I_USER;
-
-	IF V_REC_CNT > 0 THEN
-		UPDATE FORM_DTL
-		SET
-			PROCID = V_PROCID
-			, ACTSEQ = V_ACTSEQ
-			, WITEMSEQ = V_WITEMSEQ
-			, FIELD_DATA = V_XMLDOC
-			, MOD_DT = SYSDATE
-			, MOD_USR = V_USER
-		WHERE ID = V_ID
-		;
-
-	ELSE
-		INSERT INTO FORM_DTL
-		(
-			PROCID
-			, ACTSEQ
-			, WITEMSEQ
-			, FORM_TYPE
-			, FIELD_DATA
-			, CRT_DT
-			, CRT_USR
-		)
-		VALUES
-		(
-			V_PROCID
-			, V_ACTSEQ
-			, V_WITEMSEQ
-			, V_FORM_TYPE
-			, V_XMLDOC
-			, SYSDATE
-			, V_USER
-		)
-		;
-	END IF;
-	
-	-- adjust deadline to resume 60 day clock
-	IF V_ACTSEQ = 7 THEN
-		SELECT MAX(ROUND((startdtime - SYSDATE), 0)) INTO V_REMAINING_SLA FROM bizflow.deadline WHERE procid = I_PROCID AND actseq=7;
-		SELECT COUNT(*) INTO V_REC_CNT FROM HHS_IHS_HR.send_email WHERE parent_id = I_PROCID AND rcv_dt IS NULL;
-
-		-- if greater than 60 days, it is on hold
-		IF V_REMAINING_SLA > 60 AND V_REC_CNT = 0 THEN
-			SELECT MIN(REMAINING_SLA) INTO V_REMAINING_SLA FROM SEND_EMAIL WHERE PARENT_ID = I_PROCID;
-			SELECT MIN(deadlineseq) INTO V_DEADLINE_SEQ1 FROM bizflow.deadline WHERE procid = I_PROCID AND actseq=7;
-			SELECT MAX(deadlineseq) INTO V_DEADLINE_SEQ2 FROM bizflow.deadline WHERE procid = I_PROCID AND actseq=7;
-			UPDATE bizflow.deadline SET startdtime = (SYSDATE + V_REMAINING_SLA/60/24), nextdtime = (SYSDATE + V_REMAINING_SLA/60/24) WHERE procid = I_PROCID AND actseq=7 AND deadlineseq = V_DEADLINE_SEQ1;
-			
-			IF V_DEADLINE_SEQ1 != V_DEADLINE_SEQ2 THEN
-				UPDATE bizflow.deadline SET startdtime = (SYSDATE + V_REMAINING_SLA/60/24 + 30), nextdtime = (SYSDATE + V_REMAINING_SLA/60/24 + 30) WHERE procid = I_PROCID AND actseq=7 AND deadlineseq = V_DEADLINE_SEQ2;
-			END IF;
-
-			UPDATE BIZFLOW.rlvntdata SET value = 'Pending Classification' WHERE procid = I_PROCID AND rlvntdataname = 'requestStatus';
-		END IF;
-	END IF;
-
-	COMMIT;
-
-EXCEPTION
-	WHEN OTHERS THEN
-		SP_ERROR_LOG();
-END;
-
-/
-
---------------------------------------------------------
 --  DDL for Procedure SP_UPDATE_PV_FROM_FORMDATA
 --------------------------------------------------------
 
@@ -1478,6 +1310,173 @@ END;
 /
 
 
+--------------------------------------------------------
+--  DDL for Procedure SP_UPDATE_FORM_DATA
+--------------------------------------------------------
+
+/**
+ * Stores the form data XML in the form detail table (FORM_DTL).
+ *
+ * @param IO_ID - ID number the row of the FORM_DTL table to be inserted or updated.  It will be also used as the return object.
+ * @param I_FORM_TYPE - Form Type to indicate the source form name, which will be
+ * 				used to distinguish the xml structure.
+ * @param I_FIELD_DATA - CLOB representation of the form xml data.
+ * @param I_USER - Indicates the user who
+ * @param I_PROCID - Process ID for the process instance associated with the given form data.
+ * @param I_ACTSEQ - Activity Sequence for the process instance associated with the given form data.
+ * @param I_WITEMSEQ - Work Item Sequence for the process instance associated with the given form data.
+ *
+ * @return IO_ID - ID number of the row of the FORM_DTL table inserted or updated.
+ */
+
+CREATE OR REPLACE PROCEDURE SP_UPDATE_FORM_DATA
+(
+	IO_ID               IN OUT  NUMBER
+	, I_FORM_TYPE       IN      VARCHAR2
+	, I_FIELD_DATA      IN      CLOB
+	, I_USER            IN      VARCHAR2
+	, I_PROCID          IN      NUMBER
+	, I_ACTSEQ          IN      NUMBER
+	, I_WITEMSEQ        IN      NUMBER
+)
+IS
+	V_ID NUMBER(20);
+	V_FORM_TYPE VARCHAR2(50);
+	V_USER VARCHAR2(50);
+	V_PROCID NUMBER(10);
+	V_ACTSEQ NUMBER(10);
+	V_WITEMSEQ NUMBER(10);
+	V_REC_CNT NUMBER(10);
+	V_MAX_ID NUMBER(20);
+	V_XMLDOC XMLTYPE;
+	V_REMAINING_SLA NUMBER;
+	V_DEADLINE_SEQ1 NUMBER;
+	V_DEADLINE_SEQ2 NUMBER;
+BEGIN
+	V_XMLDOC := XMLTYPE(I_FIELD_DATA);
+
+	IF IO_ID IS NOT NULL AND IO_ID > 0 THEN
+		V_ID := IO_ID;
+	ELSE
+
+		-- if existing record is found using procid, use that id
+		IF I_PROCID IS NOT NULL AND I_PROCID > 0 THEN
+			BEGIN
+				SELECT ID INTO V_ID FROM FORM_DTL WHERE PROCID = I_PROCID;
+			EXCEPTION
+				WHEN NO_DATA_FOUND THEN
+					V_ID := -1;
+			END;
+		END IF;
+
+		IO_ID := V_ID;
+	END IF;
+
+	IF I_PROCID IS NOT NULL AND I_PROCID > 0 THEN
+		V_PROCID := I_PROCID;
+	ELSE
+		V_PROCID := 0;
+	END IF;
+
+	IF I_ACTSEQ IS NOT NULL AND I_ACTSEQ > 0 THEN
+		V_ACTSEQ := I_ACTSEQ;
+	ELSE
+		V_ACTSEQ := 0;
+	END IF;
+
+	IF I_WITEMSEQ IS NOT NULL AND I_WITEMSEQ > 0 THEN
+		V_WITEMSEQ := I_WITEMSEQ;
+	ELSE
+		V_WITEMSEQ := 0;
+	END IF;
+
+	BEGIN
+		SELECT COUNT(*) INTO V_REC_CNT FROM FORM_DTL WHERE ID = V_ID;
+	EXCEPTION
+		WHEN NO_DATA_FOUND THEN
+			V_REC_CNT := -1;
+	END;
+
+	IF V_ACTSEQ = 8 THEN
+		SP_UPDATE_PV_FROM_FORMDATA_SC(V_PROCID, V_XMLDOC);
+	ELSE
+		SP_UPDATE_PV_FROM_FORMDATA(V_PROCID, V_XMLDOC);
+	END IF;
+
+	SP_UPDATE_REPORT_FROM_FORMDATA(V_PROCID, V_XMLDOC);
+
+	-- do not save pv_requestStatus to get latest from PV value
+	SELECT UPDATEXML(V_XMLDOC, '/formData/items/item[id="pv_requestStatus"]', '')
+      INTO V_XMLDOC
+      FROM DUAL;
+	  
+	V_FORM_TYPE := I_FORM_TYPE;
+	V_USER := I_USER;
+
+	IF V_REC_CNT > 0 THEN
+		UPDATE FORM_DTL
+		SET
+			PROCID = V_PROCID
+			, ACTSEQ = V_ACTSEQ
+			, WITEMSEQ = V_WITEMSEQ
+			, FIELD_DATA = V_XMLDOC
+			, MOD_DT = SYSDATE
+			, MOD_USR = V_USER
+		WHERE ID = V_ID
+		;
+
+	ELSE
+		INSERT INTO FORM_DTL
+		(
+			PROCID
+			, ACTSEQ
+			, WITEMSEQ
+			, FORM_TYPE
+			, FIELD_DATA
+			, CRT_DT
+			, CRT_USR
+		)
+		VALUES
+		(
+			V_PROCID
+			, V_ACTSEQ
+			, V_WITEMSEQ
+			, V_FORM_TYPE
+			, V_XMLDOC
+			, SYSDATE
+			, V_USER
+		)
+		;
+	END IF;
+	
+	-- adjust deadline to resume 60 day clock
+	IF V_ACTSEQ = 7 THEN
+		SELECT MAX(ROUND((startdtime - SYSDATE), 0)) INTO V_REMAINING_SLA FROM bizflow.deadline WHERE procid = I_PROCID AND actseq=7;
+		SELECT COUNT(*) INTO V_REC_CNT FROM HHS_IHS_HR.send_email WHERE parent_id = I_PROCID AND rcv_dt IS NULL;
+
+		-- if greater than 60 days, it is on hold
+		IF V_REMAINING_SLA > 60 AND V_REC_CNT = 0 THEN
+			SELECT MIN(REMAINING_SLA) INTO V_REMAINING_SLA FROM SEND_EMAIL WHERE PARENT_ID = I_PROCID;
+			SELECT MIN(deadlineseq) INTO V_DEADLINE_SEQ1 FROM bizflow.deadline WHERE procid = I_PROCID AND actseq=7;
+			SELECT MAX(deadlineseq) INTO V_DEADLINE_SEQ2 FROM bizflow.deadline WHERE procid = I_PROCID AND actseq=7;
+			UPDATE bizflow.deadline SET startdtime = (SYSDATE + V_REMAINING_SLA/60/24), nextdtime = (SYSDATE + V_REMAINING_SLA/60/24) WHERE procid = I_PROCID AND actseq=7 AND deadlineseq = V_DEADLINE_SEQ1;
+			
+			IF V_DEADLINE_SEQ1 != V_DEADLINE_SEQ2 THEN
+				UPDATE bizflow.deadline SET startdtime = (SYSDATE + V_REMAINING_SLA/60/24 + 30), nextdtime = (SYSDATE + V_REMAINING_SLA/60/24 + 30) WHERE procid = I_PROCID AND actseq=7 AND deadlineseq = V_DEADLINE_SEQ2;
+			END IF;
+
+			UPDATE BIZFLOW.rlvntdata SET value = 'Pending Classification' WHERE procid = I_PROCID AND rlvntdataname = 'requestStatus';
+		END IF;
+	END IF;
+
+	COMMIT;
+
+EXCEPTION
+	WHEN OTHERS THEN
+		SP_ERROR_LOG();
+END;
+
+/
 
 --------------------------------------------------------
 --  DDL for Procedure SP_SEND_EMAIL
