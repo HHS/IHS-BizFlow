@@ -2,6 +2,23 @@
 -- Create TABLE and associated objects
 --=============================================================================
 
+/*
+DROP TABLE ERROR_LOG
+DROP TABLE FORM_DTL
+DROP TABLE FORM_DTL_AUDIT
+DROP TABLE LOOKUP
+DROP TABLE DUTYLOCATION
+DROP TABLE ADMINCODE
+DROP TABLE OCCUPATIONALSERIES
+DROP TABLE GRADE
+DROP TABLE ATTACH_AUDIT
+DROP TABLE SEND_EMAIL
+DROP TABLE xxxx
+DROP TABLE xxxx
+DROP TABLE xxxx
+DROP TABLE xxxx
+DROP TABLE xxxx
+*/
 
 --------------------------------------------------------
 --  DDL for Table ERROR_LOG
@@ -241,6 +258,7 @@ BEGIN
 	INTO :NEW.TBL_ID
 	FROM DUAL;
 END;
+/
 
 -------------------------------------------------------
 --  DDL for Table DUTY LOCATION
@@ -282,6 +300,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
+/
 
 -------------------------------------------------------
 --  DDL for Table Admin Code
@@ -352,7 +371,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 
 -------------------------------------------------------
 --  DDL for Table GRADE
@@ -385,7 +404,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 -------------------------------------------------------
 --  DDL for Table ATTACH_AUDIT
 --------------------------------------------------------
@@ -427,7 +446,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 -------------------------------------------------------
 --  DDL for Table SEND_EMAIL
 --------------------------------------------------------
@@ -477,7 +496,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 
 -------------------------------------------------------
 --  DDL for Table COMPLETE_WAIT
@@ -514,7 +533,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 -------------------------------------------------------
 --  DDL for Table IHS_REPORT
 --------------------------------------------------------
