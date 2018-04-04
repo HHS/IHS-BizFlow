@@ -123,7 +123,7 @@ Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MA
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','The Diversity Outreach Resource (DOR)','The Diversity Outreach Resource (DOR)','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','Advertising on/at','Advertising on/at','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','All tribes newsletter (terrab@tribalselfgov.org)','All tribes newsletter (terrab@tribalselfgov.org)','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','National Congress of American Indians (support @ncai.org)','National Congress of American Indians (support @ncai.org)','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','National Congress of American Indians (support@ncai.org)','National Congress of American Indians (support@ncai.org)','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','Other','Other','1','N');
 UPDATE lookup SET tbl_disp_order = 1 WHERE tbl_ltype='AdditionalRecruitment' AND tbl_name != 'Other';
 UPDATE lookup SET tbl_disp_order = 99 WHERE tbl_ltype='AdditionalRecruitment' AND tbl_name = 'Other';
