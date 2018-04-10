@@ -2,6 +2,33 @@
 -- Create TABLE and associated objects
 --=============================================================================
 
+/*
+DROP TABLE ERROR_LOG
+DROP TABLE FORM_DTL
+DROP TABLE FORM_DTL_AUDIT
+DROP TABLE LOOKUP
+DROP TABLE DUTYLOCATION
+DROP TABLE ADMINCODE
+DROP TABLE OCCUPATIONALSERIES
+DROP TABLE GRADE
+DROP TABLE ATTACH_AUDIT
+DROP TABLE SEND_EMAIL
+DROP TABLE COMPLETE_WAIT
+DROP TABLE IHS_RECRUITEMENT_DATA
+DROP VIEW V_IHS_RECRUITEMENT_REPORT
+
+DROP SEQUENCE ERROR_LOG_SEQ
+DROP SEQUENCE IHS_FORM_DATA_SEQ
+DROP SEQUENCE FORM_DTL_AUDIT_SEQ
+DROP SEQUENCE LOOKUP_SEQ
+DROP SEQUENCE DUTYLOCATION_SEQ
+DROP SEQUENCE ADMINCODE_SEQ
+DROP SEQUENCE OCCUPATIONALSERIES_SEQ
+DROP SEQUENCE GRADE_SEQ
+DROP SEQUENCE ATTACH_AUDIT_SEQ
+DROP SEQUENCE SEND_EMAIL_SEQ
+DROP SEQUENCE COMPLETE_WAIT_SEQ
+*/
 
 --------------------------------------------------------
 --  DDL for Table ERROR_LOG
@@ -116,10 +143,6 @@ END
 -- Auditing utility for form data xml table
 ---------------------------------------------------
 
--- DROP TABLE FORM_DTL_AUDIT;
--- DROP SEQUENCE FORM_DTL_AUDIT_SEQ;
-
-
 CREATE TABLE FORM_DTL_AUDIT
 (
 	AUDITID                 NUMBER(20)
@@ -142,11 +165,9 @@ CREATE TABLE FORM_DTL_AUDIT
 ALTER TABLE FORM_DTL_AUDIT ADD CONSTRAINT FORM_DTL_AUDIT_PK PRIMARY KEY (AUDITID);
 
 -- optional index for search performance
---DROP INDEX FORM_DTL_AUDIT_NK1;
 CREATE INDEX FORM_DTL_AUDIT_NK1 ON FORM_DTL_AUDIT (ID);
 
 -- optional index for search performance
---DROP INDEX FORM_DTL_AUDIT_NK2;
 CREATE INDEX FORM_DTL_AUDIT_NK2 ON FORM_DTL_AUDIT (PROCID);
 
 
@@ -241,6 +262,7 @@ BEGIN
 	INTO :NEW.TBL_ID
 	FROM DUAL;
 END;
+/
 
 -------------------------------------------------------
 --  DDL for Table DUTY LOCATION
@@ -282,6 +304,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
+/
 
 -------------------------------------------------------
 --  DDL for Table Admin Code
@@ -352,7 +375,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 
 -------------------------------------------------------
 --  DDL for Table GRADE
@@ -385,7 +408,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 -------------------------------------------------------
 --  DDL for Table ATTACH_AUDIT
 --------------------------------------------------------
@@ -427,7 +450,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 -------------------------------------------------------
 --  DDL for Table SEND_EMAIL
 --------------------------------------------------------
@@ -477,7 +500,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 
 -------------------------------------------------------
 --  DDL for Table COMPLETE_WAIT
@@ -494,7 +517,7 @@ CREATE TABLE COMPLETE_WAIT
 ALTER TABLE COMPLETE_WAIT ADD CONSTRAINT COMPLETE_WAIT_PK PRIMARY KEY (ID);
 
 COMMENT ON COLUMN COMPLETE_WAIT.ID IS 'Unique primary key';
-COMMENT ON COLUMN COMPLETE_WAIT.PARENT_ID IS 'Tracking Number';
+COMMENT ON COLUMN COMPLETE_WAIT.PROCESSID IS 'Tracking Number';
 COMMENT ON COLUMN COMPLETE_WAIT.TRUE_COL IS 'True value holder column';
 COMMENT ON COLUMN COMPLETE_WAIT.CRT_DT IS 'Request time';
 COMMENT ON COLUMN COMPLETE_WAIT.PROCESSED_DT IS 'ERA processed time';
@@ -514,7 +537,7 @@ BEGIN
 	INTO :NEW.ID
 	FROM DUAL;
 END;
-
+/
 -------------------------------------------------------
 --  DDL for Table IHS_REPORT
 --------------------------------------------------------
