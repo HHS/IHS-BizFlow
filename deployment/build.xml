@@ -9,7 +9,7 @@
 	<property name="deploy.runtime.dir" value="${deploy.dir}/ui/runtime" />
 	<property name="deploy.conf.dir" value="${deploy.runtime.dir}/configuration" />
 	<property name="deploy.webapps.dir" value="${deploy.runtime.dir}/webapps" />
-	<property name="token.bf.base.url" value="http://cms.bizflow.com" />
+	<property name="token.bf.base.url" value="http://ihs.bizflow.com" />
 	<property name="blastcache.set" value="false"/>
 
 	<target name="init">
