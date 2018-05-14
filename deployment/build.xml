@@ -9,7 +9,7 @@
 	<property name="deploy.runtime.dir" value="${deploy.dir}/ui/runtime" />
 	<property name="deploy.conf.dir" value="${deploy.runtime.dir}/configuration" />
 	<property name="deploy.webapps.dir" value="${deploy.runtime.dir}/webapps" />
-	<property name="token.bf.base.url" value="http://ihs.bizflow.com" />
+	<property name="token.bf.base.url" value="http://cms.bizflow.com" />
 	<property name="blastcache.set" value="false"/>
 
 	<target name="init">
@@ -158,7 +158,7 @@
 		<delete dir="${deploy.webapps.dir}/bizflow" />
 		<copy todir="${deploy.webapps.dir}/bizflow">
 			<fileset dir="${src.web.bizflow.dir}">
-				<include name="solutions/ihs/**" />
+				<include name="solutions/hhs/ihs/**" />
 			</fileset>
 		</copy>
 	</target>
@@ -172,7 +172,7 @@
 		<tstamp>
 			<format property="blockcachesfx2" pattern="yyyyMMddHHmmss" />
 		</tstamp>
-		<replace dir="${deploy.webapps.dir}/bizflow/solutions/ihs"
+		<replace dir="${deploy.webapps.dir}/bizflow/solutions/hhs/ihs"
 			includes="index.jsp">
 			<replacefilter token=".css" value=".css?rev=${blockcachesfx2}" />
 			<replacefilter token=".js" value=".js?rev=${blockcachesfx2}" />

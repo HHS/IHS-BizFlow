@@ -2,6 +2,7 @@
 --  File created - Thursday-April-27-2017
 --------------------------------------------------------
 REM INSERTING into HHS_IHS_HR.LOOKUP
+TRUNCATE TABLE HHS_IHS_HR.LOOKUP;
 SET DEFINE OFF;
 
 -- ActionType
@@ -16,8 +17,10 @@ Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MA
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'CancellationReason','Per management request','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'CancellationReason','Position abolished','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'CancellationReason','Reduction in Force (RIF)','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'CancellationReason','Cancelled, Non-competitive Assignment','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'CancellationReason','Cancelled','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'CancellationReason','Emergency Hire','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'CancellationReason','Non-competitive Assignment','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'CancellationReason','SES','','1','N');
 update lookup set tbl_label = tbl_name where tbl_ltype='CancellationReason';
 
 -- DocumentType
@@ -44,7 +47,7 @@ Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MA
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'ClassificationStatus','Cancelled','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'ClassificationStatus','Pending Security','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'ClassificationStatus','Pending Position Designation','','1','N');
---Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'ClassificationStatus','Classification Complete','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'ClassificationStatus','Classification Complete','','1','N');
 update lookup set tbl_label = tbl_name where tbl_ltype='ClassificationStatus';
 
 -- Pay Plan
@@ -58,18 +61,8 @@ Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MA
 -- Appointment Type
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Permanent','Permanent','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Temporary','Temporary','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Temporary Promotion','Temporary Promotion','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Intermittent','Intermittent','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Term','Term','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Pathways Student','Pathways Student','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Seasonal','Seasonal','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Summer','Summer','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Telework','Telework','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Internships','Internships','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Detail','Detail','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','ICTAP Only','ICTAP Only','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Presidential Management Fellows','Presidential Management Fellows','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AppointmentType','Recent Graduates','Recent Graduates','1','N');
 
 -- Hiring Plan
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'HiringPlan','MP/ESEP Hiring Plan','MP/ESEP Hiring Plan','1','N');
@@ -78,7 +71,7 @@ Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MA
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'HiringPlan','All Sources: DH, MP, ESEP (two separate announcements required)','All Sources: DH, MP, ESEP (two separate announcements required)','1','N');
 
 -- Additional Hiring Plan
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalHiringPlan','Gov-wide','Gov-wide','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalHiringPlan','Govt-wide','Govt-wide','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalHiringPlan','HHS-wide','HHS-wide','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalHiringPlan','IHS-wide','IHS-wide','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalHiringPlan','Area-wide','Area-wide','1','N');
@@ -100,7 +93,7 @@ Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MA
 -- Recruitment Enticement
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'RecruitmentEnticement','Annual Leave Credit for Non-Federal Service ("New Feds")','Annual Leave Credit for Non-Federal Service ("new" Feds)','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'RecruitmentEnticement','Setting Pay at an Advanced Rate based on Superior Qualifications & Special Needs ("new" Feds)','Setting Pay at an Advanced Rate based on Superior Qualifications & Special Needs ("new" Feds)','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'RecruitmentEnticement','Relocation Expenses Paid (decision before JOA)','Relocation Expenses Paid (decision before JOA)','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'RecruitmentEnticement','Travel and Relocation Expenses Paid (decision before JOA)','Travel and Relocation Expenses Paid (decision before JOA)','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'RecruitmentEnticement','Recruitment Incentives ("new" Feds)','Recruitment Incentives ("new" Feds)','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'RecruitmentEnticement','Relocation Incentives (current Feds only)','Relocation Incentives (current Feds only)','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'RecruitmentEnticement','IHS Loan Repayment Program','IHS Loan Repayment Program','1','N');
@@ -119,6 +112,7 @@ UPDATE lookup SET tbl_disp_order = -1 WHERE tbl_ltype='OvernightTravel' AND tbl_
 -- Additional Recruitment
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','School/University Posting','School/University Posting','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','Social Media','Social Media','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','Native American/Alaskan Native Groups','Native American/Alaskan Native Groups','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','Commissioned Corps Listserv','Commissioned Corps Listserv','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','The Diversity Outreach Resource (DOR)','The Diversity Outreach Resource (DOR)','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'AdditionalRecruitment','Advertising on/at','Advertising on/at','1','N');
@@ -129,24 +123,12 @@ UPDATE lookup SET tbl_disp_order = 1 WHERE tbl_ltype='AdditionalRecruitment' AND
 UPDATE lookup SET tbl_disp_order = 99 WHERE tbl_ltype='AdditionalRecruitment' AND tbl_name = 'Other';
 
 -- Security Clearance
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','ANACI Access NACI','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','BI Background Investigation','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','CNACI-background Investigation','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','Confidential','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','L (Atomic Energy Act)','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','MBI Minimum BI','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','NACI','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','NACIS - (NACI and Credit)','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','Not Required','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','Other','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','PTL V-LTD','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','BD Investigation','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','Q Non-Sensitive','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','Q Sensitive','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','SSBI Single Scope BI','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','Secret','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','Sensitive Compartmented Info','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','Top Secret','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','T4 - High Risk - BI (with childcare)','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','T4 - High Risk - BI (without childcare)','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','T2/T2S - Moderate Risk - MBI (with childcare)','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','T2/T2S - Moderate Risk - MBI (without childcare)','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','T1 - Low Risk - CNACI (with childcare)','','1','N');
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','T1 - Low Risk - NACI (without childcare)','','1','N');
 update lookup set tbl_label = tbl_name where tbl_ltype='SecurityClearance';
 
 
