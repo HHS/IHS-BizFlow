@@ -131,6 +131,9 @@ Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MA
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'SecurityClearance','T1 - Low Risk - NACI (without childcare)','','1','N');
 update lookup set tbl_label = tbl_name where tbl_ltype='SecurityClearance';
 
+-- Security Clearance
+Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'USAJOBSLink','https://www.uat.usajobs.gov/GetJob/ViewDetails/','https://www.uat.usajobs.gov/GetJob/ViewDetails/','1','N');
+--Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'USAJOBSLink','https://www.usajobs.gov/GetJob/ViewDetails/','https://www.usajobs.gov/GetJob/ViewDetails/','1','N');
 
 UPDATE lookup SET TBL_EFFECTIVE_DT = TO_DATE('2017-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), TBL_EXPIRATION_DT = TO_DATE('2050-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') WHERE TBL_EFFECTIVE_DT IS NULL;
 COMMIT;
