@@ -1,3 +1,4 @@
+TRUNCATE TABLE GRADE;
 -- GRADE for GS
 Insert into GRADE (GRADE,PAY_PLAN) values ('01','GS');
 Insert into GRADE (GRADE,PAY_PLAN) values ('02','GS');
@@ -81,3 +82,5 @@ Insert into GRADE (GRADE,PAY_PLAN) values ('12','WS');
 Insert into GRADE (GRADE,PAY_PLAN) values ('13','WS');
 Insert into GRADE (GRADE,PAY_PLAN) values ('14','WS');
 Insert into GRADE (GRADE,PAY_PLAN) values ('15','WS');
+
+COMMIT;
