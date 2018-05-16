@@ -1640,8 +1640,10 @@ IF v_count > 0 THEN
 		IF v_count > 0 THEN
 			SELECT MAX(certificate_number) INTO v_latest_cn FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
 				WHERE announcement_number = v_latest_an AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+				
 			SELECT review_return_date INTO v_cert_returnDate FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
-				WHERE certificate_number = v_latest_cn AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+				WHERE certificate_number = v_latest_cn AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'))
+				  AND rownum=1;
 			
 			IF v_cert_returnDate IS NOT NULL THEN
 				v_finalStatus := 'HRS_Pending Job Offer';
