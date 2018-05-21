@@ -1290,7 +1290,7 @@ END;
  * @return IO_ID - ID number of the row of the FORM_DTL table inserted or updated.
  */
 
-CREATE OR REPLACE PROCEDURE SP_UPDATE_FORM_DATA
+create or replace PROCEDURE SP_UPDATE_FORM_DATA
 (
 	IO_ID               IN OUT  NUMBER
 	, I_FORM_TYPE       IN      VARCHAR2
@@ -1359,12 +1359,23 @@ BEGIN
 			V_REC_CNT := -1;
 	END;
 
+	IF V_ACTSEQ = 7 AND I_ACTION = 'Submit' THEN
+		-- update classification status to 'Classification Complete'
+		SELECT UPDATEXML(V_XMLDOC, '/formData/items/item[id="classificationStat"]/value/text()', 'Classification Complete')
+		  INTO V_XMLDOC
+		  FROM DUAL;
+
+		SELECT UPDATEXML(V_XMLDOC, '/formData/items/item[id="classificationStat"]/text/text()', 'Classification Complete')
+		  INTO V_XMLDOC
+		  FROM DUAL;
+	END IF;
+
 	IF V_ACTSEQ = 8 THEN
 		SP_UPDATE_PV_FROM_FORMDATA_SC(V_PROCID, V_XMLDOC);
 	ELSE
 		SP_UPDATE_PV_FROM_FORMDATA(V_PROCID, V_ACTSEQ, V_XMLDOC);
 	END IF;
-	
+
 	IF V_ACTSEQ = 82 THEN
 		SP_UPDATE_PV_FROM_FORMDATA_SC(V_PROCID, V_XMLDOC);
 	END IF;
@@ -1373,17 +1384,6 @@ BEGIN
 	SELECT UPDATEXML(V_XMLDOC, '/formData/items/item[id="pv_requestStatus"]', '')
       INTO V_XMLDOC
       FROM DUAL;
-	  
-	IF V_ACTSEQ = 7 AND I_ACTION = 'Submit' THEN
-		-- update classification status to 'Classification Complete'
-		SELECT UPDATEXML(V_XMLDOC, '/formData/items/item[id="classificationStat"]/value/text()', 'Classification Complete')
-		  INTO V_XMLDOC
-		  FROM DUAL;
-	
-		SELECT UPDATEXML(V_XMLDOC, '/formData/items/item[id="classificationStat"]/text/text()', 'Classification Complete')
-		  INTO V_XMLDOC
-		  FROM DUAL;
-	END IF;
 
 	V_FORM_TYPE := I_FORM_TYPE;
 	V_USER := I_USER;
@@ -1425,7 +1425,7 @@ BEGIN
 	END IF;
 
 	SP_UPDATE_REPORT_FROM_FORMDATA(V_PROCID, V_XMLDOC);
-	
+
 	-- Classification activity - adjust deadline to resume 60 day clock
 	BEGIN
 		IF V_ACTSEQ = 7 THEN
@@ -1438,12 +1438,12 @@ BEGIN
 				SELECT MIN(deadlineseq) INTO V_DEADLINE_SEQ1 FROM bizflow.deadline WHERE procid = I_PROCID AND actseq=7;
 				SELECT MAX(deadlineseq) INTO V_DEADLINE_SEQ2 FROM bizflow.deadline WHERE procid = I_PROCID AND actseq=7;
 				UPDATE bizflow.deadline SET startdtime = (SYSDATE + V_REMAINING_SLA/60/24), nextdtime = (SYSDATE + V_REMAINING_SLA/60/24) WHERE procid = I_PROCID AND actseq=7 AND deadlineseq = V_DEADLINE_SEQ1;
-				
+
 				IF V_DEADLINE_SEQ1 != V_DEADLINE_SEQ2 THEN
 					UPDATE bizflow.deadline SET startdtime = (SYSDATE + V_REMAINING_SLA/60/24 + 30), nextdtime = (SYSDATE + V_REMAINING_SLA/60/24 + 30) WHERE procid = I_PROCID AND actseq=7 AND deadlineseq = V_DEADLINE_SEQ2;
 				END IF;
 			END IF;
-			
+
 			IF V_REC_CNT = 0 THEN
 				UPDATE BIZFLOW.rlvntdata SET value = 'Pending Classification' WHERE procid = I_PROCID AND rlvntdataname = 'requestStatus';
 			END IF;
@@ -1458,7 +1458,6 @@ EXCEPTION
 		SP_ERROR_LOG();
 		RAISE_APPLICATION_ERROR(-20800, CONCAT('Failed to run SP_UPDATE_FORM_DATA for ' , V_PROCID));
 END;
-
 /
 
 --------------------------------------------------------
