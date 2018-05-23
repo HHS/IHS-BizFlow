@@ -1620,7 +1620,8 @@ IF v_count > 0 THEN
 	SELECT MAX(announcement_number) INTO v_latest_an FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
 		WHERE request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01');
 	SELECT close_date INTO v_closeDate
-		FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE announcement_number = v_latest_an AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+		FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE announcement_number = v_latest_an AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'))
+		AND ROWNUM=1;
 
 
 	IF sysdate < v_closeDate THEN
