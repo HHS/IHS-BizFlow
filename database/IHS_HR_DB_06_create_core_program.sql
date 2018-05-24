@@ -1607,8 +1607,6 @@ IS
     v_closeDate DATE;
 	v_count NUMBER;
 	v_cert_returnDate DATE;
-	v_latest_an VARCHAR2(100);
-	v_latest_cn VARCHAR2(100);
 	v_announcementCount NUMBER;
 	v_finalStatus VARCHAR2(100);
 	v_totalPositions NUMBER;
@@ -1617,16 +1615,13 @@ SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT
 	WHERE request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01');
 
 IF v_count > 0 THEN
-	SELECT MAX(announcement_number) INTO v_latest_an FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
-		WHERE request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01');
-	SELECT close_date INTO v_closeDate
-		FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE announcement_number = v_latest_an AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'))
-		AND ROWNUM=1;
+	SELECT MAX(close_date) INTO v_closeDate
+		FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01');
 
-
-	IF sysdate < v_closeDate THEN
-		SELECT COUNT(0) INTO v_announcementCount FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-		IF v_announcementCount > 1 THEN
+	IF SYSDATE < v_closeDate THEN
+		SELECT COUNT(0) INTO v_announcementCount FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE ((request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'))
+			AND close_date < SYSDATE);
+		IF v_announcementCount > 0 THEN
 			v_finalStatus := 'Re-announced';
 			UPDATE bizflow.rlvntdata SET value = 'T' WHERE rlvntdataname = 'reannoucement' AND procid = i_procID;
 		ELSE
@@ -1634,69 +1629,54 @@ IF v_count > 0 THEN
 		END IF;
 	ELSE
 		v_finalStatus := 'HRS_Applicants Under HR Review';
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
-			WHERE announcement_number = v_latest_an AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-		
-		IF v_count > 0 THEN
-			SELECT MAX(certificate_number) INTO v_latest_cn FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
-				WHERE announcement_number = v_latest_an AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-				
-			SELECT review_return_date INTO v_cert_returnDate FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
-				WHERE certificate_number = v_latest_cn AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'))
-				  AND rownum=1;
-			
-			IF v_cert_returnDate IS NOT NULL THEN
-				v_finalStatus := 'HRS_Pending Job Offer';
-			ELSE
-				v_finalStatus := 'HM_Awaiting Selection Decision';
-			END IF;
-		END IF;
+	END IF;
 
-		-- check tentative offer
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE SEND_TENT_OFFR_CMPL_DATE IS NOT NULL AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-		IF v_count > 0 THEN
-			v_finalStatus := 'HRS_Job Offer Sent';
-		END IF;
+	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
+		WHERE (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01')) AND ISSUE_DATE IS NOT NULL;
+	
+	IF v_count > 0 THEN
+		SELECT MAX(review_return_date) INTO v_cert_returnDate FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
+			WHERE (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
 		
-		-- check projected start date
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE PROJ_START_DATE IS NOT NULL AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-		IF v_count > 0 THEN
-			v_finalStatus := 'HRS_Job Offer Accepted';
+		IF v_cert_returnDate IS NOT NULL THEN
+			v_finalStatus := 'HRS_Pending Job Offer';
+		ELSE
+			v_finalStatus := 'HM_Awaiting Selection Decision';
 		END IF;
-		
-		-- check official offer
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-		IF v_count > 0 THEN
-			v_finalStatus := 'Pending Entry On Duty';
-		END IF;
-		
-		-- check arrival verified date
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE ARRVL_VERIF_CMPL_DATE IS NOT NULL AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-		IF v_count > 0 THEN
-			v_finalStatus := 'Position Filled';
-		END IF;
+	END IF;
 
-		-- check for cancelled request
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE REQUEST_CANCEL_DATE IS NOT NULL AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-		IF v_count > 0 THEN
-			v_finalStatus := 'USAS Request Cancelled';
-		END IF;
-		
-		SELECT COUNT(audit_code) INTO v_count FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
-			WHERE certificate_number = v_latest_cn 
-				AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'))
-				AND (audit_code = 'Declined Grade' OR audit_code = 'Declined Location' OR audit_code = 'Declined Position' OR audit_code = 'Declined Salary'
-					OR audit_code = 'Removed Drug Screen' OR audit_code = 'Removed Security' OR audit_code = 'Removed Suitability' 
-					OR audit_code = 'Removed Quals' OR audit_code = 'Withdrawn' OR audit_code = 'Accepted Another Position with Agency' OR audit_code = 'Failed to reply');
-		IF v_count > 0 THEN
-			v_finalStatus := 'HRS_Job Offer declined';
-		END IF;
+	-- check tentative offer
+	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE (SEND_TENT_OFFR_CMPL_DATE IS NOT NULL OR SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL) AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+	IF v_count > 0 THEN
+		v_finalStatus := 'HRS_Job Offer Sent';
+	END IF;
+	
+	-- check official offer
+	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE EFFECTIVE_DATE > SYSDATE AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+	IF v_count > 0 THEN
+		v_finalStatus := 'Pending Entry On Duty';
+	END IF;
 
-		-- check for cancelled request
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE VACANCY_STATUS = 'Cancelled' AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
-		IF v_count > 0 THEN
-			v_finalStatus := 'USA Staffing Vacancy Cancelled';
-		END IF;
+	-- check for cancelled request
+	SELECT COUNT(audit_code) INTO v_count FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
+		WHERE (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'))
+			AND (audit_code = 'Declined Grade' OR audit_code = 'Declined Location' OR audit_code = 'Declined Position' OR audit_code = 'Declined Salary'
+				OR audit_code = 'Removed Drug Screen' OR audit_code = 'Removed Security' OR audit_code = 'Removed Suitability' 
+				OR audit_code = 'Removed Quals' OR audit_code = 'Withdrawn' OR audit_code = 'Accepted Another Position with Agency' OR audit_code = 'Failed to reply');
+	IF v_count > 0 THEN
+		v_finalStatus := 'HRS_Job Offer declined';
+	END IF;
+	
+	-- check arrival verified date
+	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE ARRVL_VERIF_CMPL_DATE IS NOT NULL AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+	IF v_count > 0 THEN
+		v_finalStatus := 'Position Filled';
+	END IF;
+
+	-- check for cancelled request
+	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE VACANCY_STATUS = 'Cancelled' AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+	IF v_count > 0 THEN
+		v_finalStatus := 'USA Staffing Vacancy Cancelled';
 	END IF;
 	
 	-- Multi position handling
@@ -1725,16 +1705,85 @@ IF v_count > 0 THEN
 			END IF;
 		END IF;
 	END IF;
-	
+
 	IF v_totalPositions > 1 THEN
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE SEND_TENT_OFFR_CMPL_DATE IS NOT NULL AND request_number LIKE CONCAT(i_procID, '-%');
+		IF v_finalStatus = 'Announcement Open' THEN
+			-- -2 position
+			SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
+				WHERE request_number = CONCAT(i_procID, '-2') OR request_number = CONCAT(i_procID, '-02');
+			IF v_count > 0 THEN
+				SELECT MAX(close_date) INTO v_closeDate
+					FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE request_number = CONCAT(i_procID, '-2') OR request_number = CONCAT(i_procID, '-02');
+
+				IF SYSDATE < v_closeDate THEN
+					SELECT COUNT(0) INTO v_announcementCount FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE ((request_number = CONCAT(i_procID, '-2') OR request_number = CONCAT(i_procID, '-02'))
+						AND close_date < SYSDATE);
+					IF v_announcementCount > 0 THEN
+						v_finalStatus := 'Re-announced';
+						UPDATE bizflow.rlvntdata SET value = 'T' WHERE rlvntdataname = 'reannoucement' AND procid = i_procID;
+					END IF;
+				END IF;
+			END IF;
+			
+			-- -3 position
+			SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
+				WHERE request_number = CONCAT(i_procID, '-3') OR request_number = CONCAT(i_procID, '-03');
+			IF v_count > 0 THEN
+				SELECT MAX(close_date) INTO v_closeDate
+					FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE request_number = CONCAT(i_procID, '-3') OR request_number = CONCAT(i_procID, '-03');
+
+				IF SYSDATE < v_closeDate THEN
+					SELECT COUNT(0) INTO v_announcementCount FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE ((request_number = CONCAT(i_procID, '-3') OR request_number = CONCAT(i_procID, '-03'))
+						AND close_date < SYSDATE);
+					IF v_announcementCount > 0 THEN
+						v_finalStatus := 'Re-announced';
+						UPDATE bizflow.rlvntdata SET value = 'T' WHERE rlvntdataname = 'reannoucement' AND procid = i_procID;
+					END IF;
+				END IF;
+			END IF;
+			
+			-- -4 position
+			SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
+				WHERE request_number = CONCAT(i_procID, '-4') OR request_number = CONCAT(i_procID, '-04');
+			IF v_count > 0 THEN
+				SELECT MAX(close_date) INTO v_closeDate
+					FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE request_number = CONCAT(i_procID, '-4') OR request_number = CONCAT(i_procID, '-04');
+
+				IF SYSDATE < v_closeDate THEN
+					SELECT COUNT(0) INTO v_announcementCount FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE ((request_number = CONCAT(i_procID, '-4') OR request_number = CONCAT(i_procID, '-04'))
+						AND close_date < SYSDATE);
+					IF v_announcementCount > 0 THEN
+						v_finalStatus := 'Re-announced';
+						UPDATE bizflow.rlvntdata SET value = 'T' WHERE rlvntdataname = 'reannoucement' AND procid = i_procID;
+					END IF;
+				END IF;
+			END IF;
+			
+			-- -5 position
+			SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
+				WHERE request_number = CONCAT(i_procID, '-5') OR request_number = CONCAT(i_procID, '-05');
+			IF v_count > 0 THEN
+				SELECT MAX(close_date) INTO v_closeDate
+					FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE request_number = CONCAT(i_procID, '-5') OR request_number = CONCAT(i_procID, '-05');
+
+				IF SYSDATE < v_closeDate THEN
+					SELECT COUNT(0) INTO v_announcementCount FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE ((request_number = CONCAT(i_procID, '-5') OR request_number = CONCAT(i_procID, '-05'))
+						AND close_date < SYSDATE);
+					IF v_announcementCount > 0 THEN
+						v_finalStatus := 'Re-announced';
+						UPDATE bizflow.rlvntdata SET value = 'T' WHERE rlvntdataname = 'reannoucement' AND procid = i_procID;
+					END IF;
+				END IF;
+			END IF;
+		END IF;
+
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL AND request_number LIKE CONCAT(i_procID, '-%');
 		IF v_count > 0 THEN
 			v_finalStatus := 'HRS_One or more Job Offer(s) extended';
 		END IF;
 		
 		SELECT COUNT(audit_code) INTO v_count FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
-			WHERE certificate_number = v_latest_cn 
-				AND request_number LIKE CONCAT(i_procID, '-%')
+			WHERE request_number LIKE CONCAT(i_procID, '-%')
 				AND (audit_code = 'Declined Grade' OR audit_code = 'Declined Location' OR audit_code = 'Declined Position' OR audit_code = 'Declined Salary'
 					OR audit_code = 'Removed Drug Screen' OR audit_code = 'Removed Security' OR audit_code = 'Removed Suitability' 
 					OR audit_code = 'Removed Quals' OR audit_code = 'Withdrawn' OR audit_code = 'Accepted Another Position with Agency' OR audit_code = 'Failed to reply'
@@ -1743,7 +1792,8 @@ IF v_count > 0 THEN
 			v_finalStatus := 'HRS_One or more Job Offer(s) accepted/declined';
 		END IF;
 
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL AND request_number LIKE CONCAT(i_procID, '-%');
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE (SEND_TENT_OFFR_CMPL_DATE IS NOT NULL OR SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL) AND request_number LIKE CONCAT(i_procID, '-%')
+			AND PROJ_START_DATE > SYSDATE;
 		IF v_count > 0 THEN
 			v_finalStatus := 'One or more Selectees pending entry on duty';
 		END IF;
@@ -1760,7 +1810,7 @@ IF v_count > 0 THEN
 		
 		-- check for cancelled request
 		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE VACANCY_STATUS = 'Cancelled' AND request_number LIKE CONCAT(i_procID, '-%');
-		IF v_count > 0 THEN
+		IF v_count = v_totalPositions THEN
 			v_finalStatus := 'USA Staffing Vacancy Cancelled';
 		END IF;
 	END IF;
