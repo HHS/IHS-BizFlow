@@ -1680,22 +1680,22 @@ IF v_count > 0 THEN
 	END IF;
 	
 	-- Multi position handling
-	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
+	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE 
 		WHERE request_number = CONCAT(i_procID, '-5') OR request_number = CONCAT(i_procID, '-05');
 	IF v_count > 0 THEN
 		v_totalPositions := 5;
 	ELSE
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE 
 			WHERE request_number = CONCAT(i_procID, '-4') OR request_number = CONCAT(i_procID, '-04');
 		IF v_count > 0 THEN
 			v_totalPositions := 4;
 		ELSE
-			SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
+			SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE 
 				WHERE request_number = CONCAT(i_procID, '-3') OR request_number = CONCAT(i_procID, '-03');
 			IF v_count > 0 THEN
 				v_totalPositions := 3;
 			ELSE
-				SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT 
+				SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE 
 					WHERE request_number = CONCAT(i_procID, '-2') OR request_number = CONCAT(i_procID, '-02');
 				IF v_count > 0 THEN
 					v_totalPositions := 2;
