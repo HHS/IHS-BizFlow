@@ -347,7 +347,12 @@ BEGIN
 				WHEN (V_XMLVALUE.GETSTRINGVAL() = 'GANC6' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFL%') THEN '/IHS Recruitment/Root/Gatekeeper/SOUTHWEST REGION HR RESOURCES'
 				WHEN (V_XMLVALUE.GETSTRINGVAL() = 'GANC4' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFB%' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFM%' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFG%') THEN '/IHS Recruitment/Root/Gatekeeper/WESTERN REGION HR RESOURCES CE'
 				WHEN (V_XMLVALUE.GETSTRINGVAL() = 'GANC5' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFE%' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFF%' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFA%') THEN '/IHS Recruitment/Root/Gatekeeper/NORTHERN PLAINS REGION HR RESO'
-				WHEN (V_XMLVALUE.GETSTRINGVAL() = 'GANC7' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFJ%') THEN '/IHS Recruitment/Root/Gatekeeper/NAVAJO REGION HR RESOURCES CEN'
+				WHEN (V_XMLVALUE.GETSTRINGVAL() LIKE 'GFJA%') THEN '/IHS Recruitment/Root/Gatekeeper/NAVAJO REGION CHINLE'
+				WHEN (V_XMLVALUE.GETSTRINGVAL() LIKE 'GFJB%') THEN '/IHS Recruitment/Root/Gatekeeper/NAVAJO REGION CROWNPOINT'
+				WHEN (V_XMLVALUE.GETSTRINGVAL() LIKE 'GFJD%') THEN '/IHS Recruitment/Root/Gatekeeper/NAVAJO REGION GALLUP'
+				WHEN (V_XMLVALUE.GETSTRINGVAL() LIKE 'GFJE%') THEN '/IHS Recruitment/Root/Gatekeeper/NAVAJO REGION KAYENTA'
+				WHEN (V_XMLVALUE.GETSTRINGVAL() LIKE 'GFJJ%') THEN '/IHS Recruitment/Root/Gatekeeper/NAVAJO REGION SHIPROCK'
+				WHEN (V_XMLVALUE.GETSTRINGVAL() = 'GANC7' OR V_XMLVALUE.GETSTRINGVAL() LIKE 'GFJ%') THEN '/IHS Recruitment/Root/Gatekeeper/NAVAJO REGION AREA OFFICE'
 				ELSE '/IHS Recruitment/Root/Gatekeeper/Headquarters'
 			END);
 			V_VALUE := CONCAT('[G]', V_VALUE);
@@ -1599,6 +1604,8 @@ END;
 
 
 
+
+
 CREATE OR REPLACE PROCEDURE SP_MONITOR_USAS
 (
 	i_procID	IN	VARCHAR2
@@ -1668,7 +1675,7 @@ IF v_count > 0 THEN
 	END IF;
 	
 	-- check arrival verified date
-	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE ARRVL_VERIF_CMPL_DATE IS NOT NULL AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE PROJ_START_DATE < SYSDATE AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
 	IF v_count > 0 THEN
 		v_finalStatus := 'Position Filled';
 	END IF;
@@ -1777,13 +1784,13 @@ IF v_count > 0 THEN
 			END IF;
 		END IF;
 
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL AND request_number LIKE CONCAT(i_procID, '-%');
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL AND PROJ_START_DATE IS NULL AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'));
 		IF v_count > 0 THEN
 			v_finalStatus := 'HRS_One or more Job Offer(s) extended';
 		END IF;
 		
 		SELECT COUNT(audit_code) INTO v_count FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
-			WHERE request_number LIKE CONCAT(i_procID, '-%')
+			WHERE (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'))
 				AND (audit_code = 'Declined Grade' OR audit_code = 'Declined Location' OR audit_code = 'Declined Position' OR audit_code = 'Declined Salary'
 					OR audit_code = 'Removed Drug Screen' OR audit_code = 'Removed Security' OR audit_code = 'Removed Suitability' 
 					OR audit_code = 'Removed Quals' OR audit_code = 'Withdrawn' OR audit_code = 'Accepted Another Position with Agency' OR audit_code = 'Failed to reply'
@@ -1792,14 +1799,14 @@ IF v_count > 0 THEN
 			v_finalStatus := 'HRS_One or more Job Offer(s) accepted/declined';
 		END IF;
 
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE (SEND_TENT_OFFR_CMPL_DATE IS NOT NULL OR SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL) AND request_number LIKE CONCAT(i_procID, '-%')
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE (PROJ_START_DATE > SYSDATE) AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'))
 			AND PROJ_START_DATE > SYSDATE;
 		IF v_count > 0 THEN
 			v_finalStatus := 'One or more Selectees pending entry on duty';
 		END IF;
 
 		-- check arrival verified date
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE ARRVL_VERIF_CMPL_DATE IS NOT NULL AND request_number LIKE CONCAT(i_procID, '-%');
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE PROJ_START_DATE < SYSDATE AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'));
 		IF v_count > 0 THEN
 			IF v_count > v_totalPositions THEN
 				v_count := v_totalPositions;
@@ -1809,7 +1816,7 @@ IF v_count > 0 THEN
 		END IF;
 		
 		-- check for cancelled request
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE VACANCY_STATUS = 'Cancelled' AND request_number LIKE CONCAT(i_procID, '-%');
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_ANNOUNCEMENT WHERE VACANCY_STATUS = 'Cancelled' AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'));
 		IF v_count = v_totalPositions THEN
 			v_finalStatus := 'USA Staffing Vacancy Cancelled';
 		END IF;
