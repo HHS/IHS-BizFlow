@@ -1675,7 +1675,7 @@ IF v_count > 0 THEN
 	END IF;
 	
 	-- check arrival verified date
-	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE PROJ_START_DATE < SYSDATE AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
+	SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE EFFECTIVE_DATE < SYSDATE AND (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
 	IF v_count > 0 THEN
 		v_finalStatus := 'Position Filled';
 	END IF;
@@ -1784,7 +1784,7 @@ IF v_count > 0 THEN
 			END IF;
 		END IF;
 
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL AND PROJ_START_DATE IS NULL AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'));
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE (SEND_OFCL_OFFR_CMPL_DATE IS NOT NULL OR SEND_TENT_OFFR_CMPL_DATE IS NOT NULL) AND EFFECTIVE_DATE IS NULL AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'));
 		IF v_count > 0 THEN
 			v_finalStatus := 'HRS_One or more Job Offer(s) extended';
 		END IF;
@@ -1799,14 +1799,14 @@ IF v_count > 0 THEN
 			v_finalStatus := 'HRS_One or more Job Offer(s) accepted/declined';
 		END IF;
 
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE (PROJ_START_DATE > SYSDATE) AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'))
-			AND PROJ_START_DATE > SYSDATE;
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE (EFFECTIVE_DATE > SYSDATE) AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'))
+			AND EFFECTIVE_DATE > SYSDATE;
 		IF v_count > 0 THEN
 			v_finalStatus := 'One or more Selectees pending entry on duty';
 		END IF;
 
 		-- check arrival verified date
-		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE PROJ_START_DATE < SYSDATE AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'));
+		SELECT COUNT(0) INTO v_count FROM HHS_HR.DSS_IHS_VAC_NEW_HIRE WHERE EFFECTIVE_DATE < SYSDATE AND (request_number = i_procID OR request_number LIKE CONCAT(i_procID, '-%'));
 		IF v_count > 0 THEN
 			IF v_count > v_totalPositions THEN
 				v_count := v_totalPositions;
