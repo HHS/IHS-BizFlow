@@ -1670,7 +1670,7 @@ IF v_count > 0 THEN
 			AND (audit_code = 'Declined Grade' OR audit_code = 'Declined Location' OR audit_code = 'Declined Position' OR audit_code = 'Declined Salary'
 				OR audit_code = 'Removed Drug Screen' OR audit_code = 'Removed Security' OR audit_code = 'Removed Suitability' 
 				OR audit_code = 'Removed Quals' OR audit_code = 'Withdrawn' OR audit_code = 'Accepted Another Position with Agency' OR audit_code = 'Failed to reply');
-	IF v_count > 0 THEN
+	IF v_count = v_announcementCount THEN
 		v_finalStatus := 'HRS_Job Offer declined';
 	END IF;
 	
