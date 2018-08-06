@@ -28,7 +28,7 @@ Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MA
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'DocumentType','Position Descriptions (PD)','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'DocumentType','Selective Placement Factors (SPF)','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'DocumentType','OF8','','1','N');
-Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'DocumentType','IHS Recruitment Worksheet','','1','N');
+--Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'DocumentType','IHS Recruitment Worksheet','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'DocumentType','EHRP Request','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'DocumentType','FLSA Determination Worksheet, dated 11/2015','','1','N');
 Insert into LOOKUP (TBL_PARENT_ID,TBL_LTYPE,TBL_NAME,TBL_LABEL,TBL_ACTIVE,TBL_MANDATORY) values (0,'DocumentType','Supervisory Position Risk Determination','','1','N');
