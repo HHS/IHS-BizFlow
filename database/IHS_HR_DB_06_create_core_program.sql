@@ -1666,7 +1666,7 @@ IF v_count > 0 THEN
 	END IF;
 
 	-- check for cancelled request
-	 SELECT COUNT(certificate_number) INTO v_certificateCount FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE
+	 SELECT COUNT(0) INTO v_certificateCount FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE
 		WHERE (request_number = i_procID OR request_number = CONCAT(i_procID, '-1') OR request_number = CONCAT(i_procID, '-01'));
 
 	SELECT COUNT(audit_code) INTO v_count FROM HHS_HR.DSS_IHS_VAC_CERTIFICATE 
